@@ -1,0 +1,95 @@
+/* styles.css atau dalam <style> di app.blade.php */
+
+/* Body dan layout umum */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Navbar - Header */
+  .navbar {
+    background-color: #343a40;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+    color: #000000 !important;
+  }
+  
+  .navbar-nav .nav-link {
+    color: #000000 !important;
+    font-weight: 500;
+  }
+  
+
+
+  
+  .navbar-nav .nav-link:hover {
+    color: #ffd700 !important; /* Menambahkan efek hover */
+  }
+  
+  .navbar-toggler {
+    border-color: #ffffff;
+  }
+  
+  .navbar-toggler-icon {
+    background-color: #ffffff;
+  }
+  
+  /* Konten utama */
+  h1 {
+    color: #343a40;
+    font-size: 3rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  p {
+    color: #555;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #343a40;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+    font-size: 1rem;
+  }
+  
+  footer p {
+    margin: 0;
+  }
+  
+  footer a {
+    color: #ffd700;
+    text-decoration: none;
+  }
+  
+  footer a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsif */
+  @media (max-width: 768px) {
+    .navbar-nav {
+      text-align: center;
+    }
+  
+    .navbar-nav .nav-item {
+      margin-bottom: 10px;
+    }
+  }
+  
