@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 06, 2025 at 05:25 PM
+-- Generation Time: May 08, 2025 at 12:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -57,11 +57,11 @@ CREATE TABLE `barang` (
 --
 
 INSERT INTO `barang` (`id`, `nama`, `foto`, `deskripsi`, `id_jenis_barang`, `harga`, `stok`, `created_at`, `updated_at`) VALUES
-(1, 'Oli Shell 750ml', NULL, 'Oli mahal', 2, 75000.00, 20, '2025-03-20 05:50:47', '2025-03-20 05:50:47'),
-(3, 'Baut BUmi', NULL, 'baut mahal', 3, 50000.00, 10, '2025-03-20 05:51:40', '2025-03-20 05:51:40'),
-(4, 'baut gacor', NULL, 'uhuy', 3, 10000.00, 100, '2025-03-20 05:52:15', '2025-03-20 05:52:15'),
+(1, 'Oli Shell 750ml', NULL, 'Oli mahal', 2, 75000.00, 15, '2025-03-20 05:50:47', '2025-05-08 03:00:33'),
+(3, 'Baut BUmi', NULL, 'baut mahal', 3, 50000.00, 5, '2025-03-20 05:51:40', '2025-05-06 10:23:42'),
+(4, 'baut gacor', NULL, 'uhuy', 3, 10000.00, 50, '2025-03-20 05:52:15', '2025-05-08 02:56:32'),
 (6, 'Paku Bumi Raksasa', NULL, 'Paku geedeeee', 6, 10000.00, 5, '2025-03-20 06:00:01', '2025-03-20 06:00:01'),
-(8, 'Musang BIrahiw', 'foto_barang/wyohr2phcnwZWtmY80nWQAnrqXYaXgc8puSHwBlC.jpg', 'Musang birahi no indukan udah sama kandangg', 6, 20000.00, 99, '2025-04-15 10:36:01', '2025-04-15 11:05:32');
+(8, 'Musang BIrahiw', 'foto_barang/wyohr2phcnwZWtmY80nWQAnrqXYaXgc8puSHwBlC.jpg', 'Musang birahi no indukan udah sama kandangg', 6, 20000.00, 44, '2025-04-15 10:36:01', '2025-05-08 03:13:10');
 
 -- --------------------------------------------------------
 
@@ -70,13 +70,23 @@ INSERT INTO `barang` (`id`, `nama`, `foto`, `deskripsi`, `id_jenis_barang`, `har
 --
 
 CREATE TABLE `detail_transaksi` (
-  `id_transaksi` bigint(20) UNSIGNED NOT NULL,
-  `id_barang` bigint(20) UNSIGNED NOT NULL,
+  `transaksi_id` bigint(20) UNSIGNED NOT NULL,
+  `barang_id` bigint(20) UNSIGNED NOT NULL,
   `jumlah` int(11) NOT NULL,
-  `harga` decimal(7,2) NOT NULL,
+  `harga` decimal(9,2) NOT NULL,
+  `subtotal` decimal(9,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `detail_transaksi`
+--
+
+INSERT INTO `detail_transaksi` (`transaksi_id`, `barang_id`, `jumlah`, `harga`, `subtotal`, `created_at`, `updated_at`) VALUES
+(6, 8, 5, 20000.00, 100000.00, '2025-05-08 03:00:33', '2025-05-08 03:00:33'),
+(6, 1, 5, 75000.00, 375000.00, '2025-05-08 03:00:33', '2025-05-08 03:00:33'),
+(7, 8, 15, 20000.00, 300000.00, '2025-05-08 03:13:11', '2025-05-08 03:13:11');
 
 -- --------------------------------------------------------
 
@@ -119,6 +129,21 @@ INSERT INTO `jenis_barang` (`id`, `jenis`, `created_at`, `updated_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `keranjangs`
+--
+
+CREATE TABLE `keranjangs` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `barang_id` bigint(20) UNSIGNED NOT NULL,
+  `jumlah` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `migrations`
 --
 
@@ -140,7 +165,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (5, '2024_12_11_092805_create_jenis__barangs_table', 1),
 (6, '2024_12_11_191259_create_barangs_table', 1),
 (7, '2024_12_11_194347_create_antrians_table', 1),
-(8, '2024_12_11_200712_create_transaksis_table', 1);
+(8, '2024_12_11_200712_create_transaksis_table', 1),
+(9, '2025_05_06_163132_create_keranjangs_table', 2),
+(10, '2025_05_08_044737_tambah_kolom_ke_transaksi', 3);
 
 -- --------------------------------------------------------
 
@@ -182,12 +209,22 @@ CREATE TABLE `personal_access_tokens` (
 CREATE TABLE `transaksi` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `nomor_faktur` varchar(255) NOT NULL,
-  `total_harga` decimal(7,2) NOT NULL,
-  `dibayar` decimal(7,2) NOT NULL,
-  `kembalian` decimal(5,2) NOT NULL,
+  `total_harga` decimal(9,2) NOT NULL,
+  `dibayar` decimal(9,2) DEFAULT NULL,
+  `kembalian` decimal(7,2) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `status` enum('menunggu','dibayar') NOT NULL DEFAULT 'menunggu'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `transaksi`
+--
+
+INSERT INTO `transaksi` (`id`, `nomor_faktur`, `total_harga`, `dibayar`, `kembalian`, `created_at`, `updated_at`, `user_id`, `status`) VALUES
+(6, '202505080001', 475000.00, NULL, NULL, '2025-05-08 03:00:33', '2025-05-08 03:08:23', 1, 'dibayar'),
+(7, '202505080002', 300000.00, NULL, NULL, '2025-05-08 03:13:11', '2025-05-08 03:14:44', 3, 'dibayar');
 
 -- --------------------------------------------------------
 
@@ -219,7 +256,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `firstname`, `lastname`, `email`, `email_verified_at`, `password`, `address`, `city`, `country`, `postal`, `about`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, 'admin', 'Admin', 'Admin', 'admin@argon.com', NULL, '$2y$10$BJz.HED7iHd8PAP4DmkeAOO.len7rIsxu1Cgh0YP7aZjqNe2/QSm.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 'putra', 'Putra', 'Syahri', 'putra@gmail.com', NULL, '$2y$10$kj4Eij.qyrEaaugSt/X/5eLPtvtUGvS3A06lRROEz5qjJ89i.ZK3u', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-16 01:07:53', '2024-12-16 01:09:12');
+(2, 'putra', 'Putra', 'Syahri', 'putra@gmail.com', NULL, '$2y$10$kj4Eij.qyrEaaugSt/X/5eLPtvtUGvS3A06lRROEz5qjJ89i.ZK3u', NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-16 01:07:53', '2024-12-16 01:09:12'),
+(3, 'ahmadrobi', NULL, NULL, 'ahmadrobi@gmail.com', NULL, '$2y$10$OSyhEyHVfkNSUlSGA69WgOWwTjXxU2YQD9n86FXV8qRjwTYTlLK66', NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-08 03:11:24', '2025-05-08 03:11:24');
 
 --
 -- Indexes for dumped tables
@@ -242,8 +280,8 @@ ALTER TABLE `barang`
 -- Indexes for table `detail_transaksi`
 --
 ALTER TABLE `detail_transaksi`
-  ADD KEY `detail_transaksi_id_transaksi_foreign` (`id_transaksi`),
-  ADD KEY `detail_transaksi_id_barang_foreign` (`id_barang`);
+  ADD KEY `detail_transaksi_id_transaksi_foreign` (`transaksi_id`),
+  ADD KEY `detail_transaksi_id_barang_foreign` (`barang_id`);
 
 --
 -- Indexes for table `failed_jobs`
@@ -257,6 +295,14 @@ ALTER TABLE `failed_jobs`
 --
 ALTER TABLE `jenis_barang`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `keranjangs`
+--
+ALTER TABLE `keranjangs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `keranjangs_user_id_foreign` (`user_id`),
+  ADD KEY `keranjangs_barang_id_foreign` (`barang_id`);
 
 --
 -- Indexes for table `migrations`
@@ -283,7 +329,8 @@ ALTER TABLE `personal_access_tokens`
 --
 ALTER TABLE `transaksi`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `transaksi_nomor_faktur_unique` (`nomor_faktur`);
+  ADD UNIQUE KEY `transaksi_nomor_faktur_unique` (`nomor_faktur`),
+  ADD KEY `transaksi_user_id_foreign` (`user_id`);
 
 --
 -- Indexes for table `users`
@@ -321,10 +368,16 @@ ALTER TABLE `jenis_barang`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `keranjangs`
+--
+ALTER TABLE `keranjangs`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -336,13 +389,13 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `transaksi`
 --
 ALTER TABLE `transaksi`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -358,8 +411,21 @@ ALTER TABLE `barang`
 -- Constraints for table `detail_transaksi`
 --
 ALTER TABLE `detail_transaksi`
-  ADD CONSTRAINT `detail_transaksi_id_barang_foreign` FOREIGN KEY (`id_barang`) REFERENCES `barang` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `detail_transaksi_id_transaksi_foreign` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `detail_transaksi_id_barang_foreign` FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `detail_transaksi_id_transaksi_foreign` FOREIGN KEY (`transaksi_id`) REFERENCES `transaksi` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `keranjangs`
+--
+ALTER TABLE `keranjangs`
+  ADD CONSTRAINT `keranjangs_barang_id_foreign` FOREIGN KEY (`barang_id`) REFERENCES `barang` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `keranjangs_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `transaksi`
+--
+ALTER TABLE `transaksi`
+  ADD CONSTRAINT `transaksi_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

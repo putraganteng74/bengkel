@@ -9,6 +9,12 @@ class Keranjang extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'barang_id',
+        'jumlah',
+    ];
+
     public function barang()
     {
         return $this->belongsTo(Barang::class);

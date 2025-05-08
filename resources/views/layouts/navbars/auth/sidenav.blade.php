@@ -53,6 +53,13 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}" href="{{ route('transaksi.index') }}">
+                    <i class="ni ni-money-coins text-success"></i>
+                    <span class="nav-link-text ms-2">Transaksi</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link {{ request()->is('tables*') ? 'active' : '' }}" href="{{ route('page', ['page' => 'tables']) }}">
                     <i class="ni ni-calendar-grid-58 text-warning"></i>
                     <span class="nav-link-text ms-2">Tables</span>

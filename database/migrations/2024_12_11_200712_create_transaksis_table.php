@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_faktur')->unique(); // Nomor faktur unik
             $table->decimal('total_harga', 7, 2); // Total harga transaksi
-            $table->decimal('dibayar', 7, 2); // Total harga transaksi
-            $table->decimal('kembalian', 5, 2); // Total harga transaksi
+            $table->decimal('dibayar', 7, 2)->nullable(); // Total harga transaksi
+            $table->decimal('kembalian', 5, 2)->nullable(); // Total harga transaksi
             $table->timestamps(); // created_at dan updated_at
         });
 
@@ -28,6 +28,7 @@ return new class extends Migration
             $table->foreignId('id_barang')->constrained('barang')->onDelete('cascade'); // Relasi ke tabel barang/jasa
             $table->integer('jumlah');
             $table->decimal('harga', 7, 2);
+            $table->decimal('subtotal', 7, 2);
             $table->timestamps();
         });
     }

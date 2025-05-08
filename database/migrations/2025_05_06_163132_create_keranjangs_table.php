@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('keranjang', function (Blueprint $table) {
+        Schema::create('keranjangs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // User pemilik keranjang
-            $table->foreignId('barang_id')->constrained('barang')->onDelete('cascade'); // Barang yang dimasukkan
-            $table->integer('jumlah')->default(1); // Jumlah barang
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('barang_id')->constrained('barang')->onDelete('cascade');
+            $table->integer('jumlah');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('keranjang');
+        Schema::dropIfExists('keranjangs');
     }
 };

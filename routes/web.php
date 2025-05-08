@@ -11,6 +11,7 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\JenisBarangController; 
 use App\Http\Controllers\KeranjangController; 
+use App\Http\Controllers\TransaksiController; 
 
 Route::get('/beranda', function () {
     return view('home');
@@ -32,10 +33,20 @@ Route::get('/etalase/{id}', [BarangController::class, 'showEtalase'])->name('eta
 
 Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index');
 Route::post('/keranjang/tambah', [KeranjangController::class, 'tambah'])->name('keranjang.tambah');
+Route::delete('/keranjang/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
+
+Route::get('/checkout', [KeranjangController::class, 'checkout'])->name('checkout');
+Route::post('/checkout', [KeranjangController::class, 'prosesCheckout'])->name('checkout.process');
+
+
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('barang', BarangController::class);
 	Route::resource('jenis-barang', JenisBarangController::class);
+
+	Route::resource('transaksi', TransaksiController::class);
+	Route::put('/transaksi/{id}/konfirmasi', [TransaksiController::class, 'konfirmasi'])->name('transaksi.konfirmasi');
+
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
 	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
 	Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
