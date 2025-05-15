@@ -9,6 +9,7 @@
             <div class="card">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Daftar Transaksi</h5>
+                    <a href="{{ route('transaksi.create') }}" class="btn btn-primary">Tambah Transaksi</a>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-3">
@@ -29,7 +30,7 @@
                                 <tr>
                                     <td class="text-xs">{{ $key + 1 }}</td>
                                     <td class="text-xs">{{ $item->nomor_faktur }}</td>
-                                    <td class="text-xs">{{ $item->user->name ?? 'Tidak Diketahui' }}</td>
+                                    <td class="text-xs">{{ $item->user->username ?? 'Tidak Diketahui' }}</td>
                                     <td class="text-xs">Rp{{ number_format($item->total_harga ?? 0, 0, ',', '.') }}</td>
                                     <td class="text-xs">
                                         @if ($item->status === 'menunggu')

@@ -28,6 +28,6 @@ class DetailTransaksi extends Model
     // Relasi ke barang (banyak ke satu)
     public function barang()
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(Barang::class, 'barang_id');
     }
 }
