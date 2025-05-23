@@ -10,23 +10,27 @@ use App\Models\DetailTransaksi;
 use Carbon\Carbon;
 
 class KeranjangController extends Controller
-{   
+{
     public function index()
     {
         $user = Auth::user();
+
+        // $user = auth()->user();
+
+        $hasOrder = Transaksi::where('user_id', $user->id)->exists();
 
         $items = Keranjang::with('barang') // ambil relasi barang
             ->where('user_id', $user->id)
             ->get();
 
-        return view('keranjang.index', compact('items'));
+        return view('keranjang.index', compact('items', 'hasOrder'));
     }
 
     public function tambah(Request $request)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-        }    
+        }
 
         $barangId = $request->input('barang_id');
         $jumlah = $request->input('jumlah');
@@ -41,7 +45,7 @@ class KeranjangController extends Controller
                 'user_id' => Auth::id(),
                 'barang_id' => $barangId,
                 'jumlah' => $jumlah,
-            ]);            
+            ]);
             return redirect()->back()->with('success', 'Barang ditambahkan ke keranjang.');
         } elseif ($action === 'beli') {
             // Arahkan ke halaman checkout langsung
@@ -67,6 +71,9 @@ class KeranjangController extends Controller
     public function checkout()
     {
         $user = Auth::user();
+
+        $hasOrder = Transaksi::where('user_id', $user->id)->exists();
+
         $items = Keranjang::with('barang')
             ->where('user_id', $user->id)
             ->get();
@@ -77,7 +84,7 @@ class KeranjangController extends Controller
 
         $total = $items->sum(fn($item) => $item->barang->harga * $item->jumlah);
 
-        return view('keranjang.checkout', compact('items', 'total'));
+        return view('keranjang.checkout', compact('items', 'total', 'hasOrder'));
     }
 
     public function prosesCheckout()
@@ -105,7 +112,7 @@ class KeranjangController extends Controller
 
             $totalHarga += $barang->harga * $item->jumlah;
         }
-        
+
         // Generate nomor faktur: format YYYYMMDD0001
         $tanggal = Carbon::now()->format('Ymd');
         $jumlahHariIni = Transaksi::whereDate('created_at', Carbon::today())->count() + 1;

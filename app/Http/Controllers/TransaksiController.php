@@ -23,10 +23,25 @@ class TransaksiController extends Controller
         return view('transaksi.show', compact('transaksi'));
     }
 
-    public function konfirmasi($id)
+    public function konfirmasi(Request $request, $id)
     {
+        $request->validate([
+            'dibayar' => 'required|string',
+        ]);
+
+        // Bersihkan nilai 'dibayar' dari titik/koma/spasi
+        $dibayar = (float) str_replace(['.', ',', ' '], '', $request->dibayar);
+
         $transaksi = Transaksi::findOrFail($id);
+
+        // Pastikan jumlah yang dibayar tidak kurang dari total harga
+        if ($dibayar < $transaksi->total_harga) {
+            return back()->with('error', 'Jumlah yang dibayar kurang dari total harga.');
+        }
+
         $transaksi->status = 'dibayar';
+        $transaksi->dibayar = $dibayar;
+        $transaksi->kembalian = $dibayar - $transaksi->total_harga;
         $transaksi->save();
 
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dikonfirmasi.');
@@ -49,6 +64,8 @@ class TransaksiController extends Controller
             'total' => 'required',
         ]);
 
+        // dd($request);
+
         DB::beginTransaction();
 
         // Generate nomor faktur: format YYYYMMDD0001
@@ -57,10 +74,15 @@ class TransaksiController extends Controller
         $nomorFaktur = $tanggal . str_pad($jumlahHariIni, 4, '0', STR_PAD_LEFT);
 
         try {
+            $clean = preg_replace('/[^\d,]/u', '', $request->total);
+            $clean = str_replace(',', '.', $clean);
+            $hargaBaru = number_format((float) $clean, 2, '.', '');
+
+
             $transaksi = Transaksi::create([
                 'user_id' => auth()->id(),
                 'nomor_faktur' => $nomorFaktur,
-                'total_harga' => (int) str_replace(['Rp', '.', ','], '', $request->total),
+                'total_harga' => $hargaBaru,
                 'status' => 'menunggu'
             ]);
 

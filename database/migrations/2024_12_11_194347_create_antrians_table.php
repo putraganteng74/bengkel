@@ -13,9 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('antrian', function (Blueprint $table) {
+        Schema::create('antrians', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->integer('no_antrian');
+            $table->timestamp('waktu_daftar')->default(now());
+            $table->enum('status', ['menunggu', 'diproses', 'selesai', 'dibatalkan'])->default('menunggu');
             $table->timestamps();
         });
     }

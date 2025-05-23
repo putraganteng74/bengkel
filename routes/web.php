@@ -9,9 +9,11 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
-use App\Http\Controllers\JenisBarangController; 
-use App\Http\Controllers\KeranjangController; 
-use App\Http\Controllers\TransaksiController; 
+use App\Http\Controllers\JenisBarangController;
+use App\Http\Controllers\KeranjangController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\LayananController;
+use App\Http\Controllers\AntrianController;
 
 Route::get('/beranda', function () {
     return view('home');
@@ -43,6 +45,17 @@ Route::post('/checkout', [KeranjangController::class, 'prosesCheckout'])->name('
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('barang', BarangController::class);
 	Route::resource('jenis-barang', JenisBarangController::class);
+    Route::resource('layanans', LayananController::class);
+
+    // Daftar antrian user
+    Route::get('/antrian', [AntrianController::class, 'index'])->name('antrian.index');
+
+    // Halaman untuk membuat antrian
+    Route::get('/antrian/create', [AntrianController::class, 'create'])->name('antrian.create');
+    Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.store');
+
+    // Lihat tiket antrian
+    Route::get('/tiket-antrian', [AntrianController::class, 'tiket'])->name('antrian.tiket');
 
 	Route::resource('transaksi', TransaksiController::class);
 	Route::put('/transaksi/{id}/konfirmasi', [TransaksiController::class, 'konfirmasi'])->name('transaksi.konfirmasi');

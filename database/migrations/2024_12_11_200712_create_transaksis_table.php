@@ -24,8 +24,8 @@ return new class extends Migration
 
         // Tabel detail transaksi
         Schema::create('detail_transaksi', function (Blueprint $table) {
-            $table->foreignId('id_transaksi')->constrained('transaksi')->onDelete('cascade'); // Relasi ke tabel transaksi
-            $table->foreignId('id_barang')->constrained('barang')->onDelete('cascade'); // Relasi ke tabel barang/jasa
+            $table->foreignId('transaksi_id')->constrained('transaksi')->onDelete('cascade'); // Relasi ke tabel transaksi
+            $table->foreignId('barang_id')->constrained('barang')->onDelete('cascade'); // Relasi ke tabel barang/jasa
             $table->integer('jumlah');
             $table->decimal('harga', 7, 2);
             $table->decimal('subtotal', 7, 2);
@@ -40,7 +40,7 @@ return new class extends Migration
      */
     public function down()
     {
-        
+
         Schema::dropIfExists('detail_transaksi');
         Schema::dropIfExists('transaksi');
     }

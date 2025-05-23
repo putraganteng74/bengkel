@@ -3,15 +3,24 @@
 namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\JenisBarang;
+use App\Models\Transaksi;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
-{   
+{
     public function etalase()
     {
+        $user = auth()->user();
         $barang = Barang::all();
-        return view('barang.etalase', compact('barang'));
+
+        if ($user) {
+            $hasOrder = Transaksi::where('user_id', $user->id)->exists();
+            return view('barang.etalase', compact('barang', 'hasOrder'));
+        } else {
+            return view('barang.etalase', compact('barang'));
+        }
     }
 
     public function index()
@@ -25,7 +34,7 @@ class BarangController extends Controller
     }
 
     public function create()
-    {   
+    {
         $jenis = JenisBarang::all();
         return view('barang.tambah', compact('jenis'));
     }
@@ -88,8 +97,8 @@ class BarangController extends Controller
         // Jika ada file foto yang di-upload
         if ($request->hasFile('foto')) {
             // Hapus foto lama jika ada
-            if ($barang->foto && \Storage::exists('public/' . $barang->foto)) {
-                \Storage::delete('public/' . $barang->foto);
+            if ($barang->foto && Storage::exists('public/' . $barang->foto)) {
+                Storage::delete('public/' . $barang->foto);
             }
 
             // Simpan foto baru
@@ -124,12 +133,18 @@ class BarangController extends Controller
     public function show($id)
     {
         $barang = Barang::with('jenisBarang')->findOrFail($id);
+
         return view('barang.detail', compact('barang'));
     }
 
     public function showEtalase($id)
     {
         $barang = Barang::findOrFail($id);
-        return view('barang.t_etalase', compact('barang'));
+
+        $user = auth()->user();
+
+        $hasOrder = Transaksi::where('user_id', $user->id)->exists();
+
+        return view('barang.t_etalase', compact('barang', 'hasOrder'));
     }
 }
