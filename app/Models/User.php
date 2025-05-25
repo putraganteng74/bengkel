@@ -64,4 +64,9 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function transaksi()
+    {
+        return $this->hasMany(\App\Models\Transaksi::class);
+    }
+
 }

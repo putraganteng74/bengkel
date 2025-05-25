@@ -15,6 +15,10 @@ class KeranjangController extends Controller
     {
         $user = Auth::user();
 
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
         // $user = auth()->user();
 
         $hasOrder = Transaksi::where('user_id', $user->id)->exists();
@@ -140,6 +144,6 @@ class KeranjangController extends Controller
         // KOsongkan keranjang user
         Keranjang::where('user_id', $user->id)->delete();
 
-        return redirect()->route('etalase')->with('success', 'Checkout berhasil! Terima kasih telah berbelanja.');
+        return redirect()->route('index')->with('success', 'Checkout berhasil! Terima kasih telah berbelanja.');
     }
 }

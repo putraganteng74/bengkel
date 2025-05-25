@@ -18,7 +18,6 @@
 </div>
 
     <h3>Daftar Antrian</h3>
-    <!-- Cek jika ada antrian -->
     @if($antrian->isEmpty())
         <div class="alert alert-warning">
             Anda belum memiliki antrian. <a href="{{ route('antrian.create') }}">Buat antrian baru</a>.

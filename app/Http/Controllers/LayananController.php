@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Transaksi;
+
 use App\Models\Layanan;
 use Illuminate\Http\Request;
 
@@ -35,6 +37,23 @@ class LayananController extends Controller
         Layanan::create($validated);
 
         return redirect()->route('layanans.index')->with('success', 'Layanan berhasil ditambahkan!');
+    }
+
+    public function show($id)
+    {
+        {
+            $layanan = Layanan::findOrFail($id);
+
+            $user = auth()->user();
+
+            if ($user) {
+                $hasOrder = Transaksi::where('user_id', $user->id)->exists();
+            } else {
+                $hasOrder = false;
+            }
+
+            return view('layanans.detail', compact('layanan', 'hasOrder'));
+        }
     }
 
     // Menampilkan form untuk mengedit layanan

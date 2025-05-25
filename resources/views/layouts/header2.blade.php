@@ -4,12 +4,12 @@
             use App\Models\Keranjang;
             use Illuminate\Support\Facades\Auth;
 
-            $jumlahKeranjang = Auth::check() 
-                ? Keranjang::where('user_id', Auth::id())->sum('jumlah') 
+            $jumlahKeranjang = Auth::check()
+                ? Keranjang::where('user_id', Auth::id())->sum('jumlah')
                 : 0;
         @endphp
-        <a class="navbar-brand" href="{{ route('etalase') }}">Kasnoto Motor</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+        <a class="navbar-brand" href="{{ route('index') }}">Kasnoto Motor</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -17,7 +17,7 @@
         <!-- Navbar Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
-                
+
                 <!-- Search Form (non-fungsional, perlu backend jika ingin aktif) -->
                 <li class="nav-item me-3">
                     <form class="d-flex" role="search" method="GET" action="#">

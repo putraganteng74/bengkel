@@ -41,11 +41,11 @@
                 <div class="alert alert-warning mt-4">
                     Silakan <a href="{{ route('login') }}">login</a> untuk memesan barang.
                 </div>
-            @endauth 
+            @endauth
         </div>
 
         <div class="card-footer">
-            <a href="{{ route('etalase') }}" class="btn btn-secondary">Kembali ke Etalase</a>
+            <a href="{{ route('index') }}" class="btn btn-secondary">Kembali ke Etalase</a>
         </div>
     </div>
 </div>

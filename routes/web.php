@@ -14,12 +14,19 @@ use App\Http\Controllers\KeranjangController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\LayananController;
 use App\Http\Controllers\AntrianController;
+use App\Http\Controllers\UserController;
 
-Route::get('/beranda', function () {
-    return view('home');
-});
+// Route::get('/beranda', function () {
+//     return view('home');
+// });
 
-Route::get('/', function () {return redirect('/dashboard');})->middleware('auth');
+Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
+Route::get('/etalase/{id}', [BarangController::class, 'showEtalase'])->name('etalase.detail');
+Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
+Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.detail');
+
+// Route::get('/', function () {return redirect('/etalase');})->middleware('auth');
 Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->middleware('guest')->name('register.perform');
 Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login');
@@ -28,10 +35,9 @@ Route::get('/reset-password', [ResetPassword::class, 'show'])->middleware('guest
 Route::post('/reset-password', [ResetPassword::class, 'send'])->middleware('guest')->name('reset.perform');
 Route::get('/change-password', [ChangePassword::class, 'show'])->middleware('guest')->name('change-password');
 Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
-Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware('auth');
+Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('home')->middleware('auth');
 
-Route::get('/etalase', [BarangController::class, 'etalase'])->name('etalase');
-Route::get('/etalase/{id}', [BarangController::class, 'showEtalase'])->name('etalase.detail');
+// Route::get('/etalase', [BarangController::class, 'etalase'])->name('etalase');
 
 Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index');
 Route::post('/keranjang/tambah', [KeranjangController::class, 'tambah'])->name('keranjang.tambah');
@@ -59,6 +65,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::resource('transaksi', TransaksiController::class);
 	Route::put('/transaksi/{id}/konfirmasi', [TransaksiController::class, 'konfirmasi'])->name('transaksi.konfirmasi');
+
+    Route::resource('user-management', UserController::class);
 
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
 	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');

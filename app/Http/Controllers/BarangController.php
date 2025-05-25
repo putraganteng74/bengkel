@@ -143,7 +143,11 @@ class BarangController extends Controller
 
         $user = auth()->user();
 
-        $hasOrder = Transaksi::where('user_id', $user->id)->exists();
+        if ($user) {
+            $hasOrder = Transaksi::where('user_id', $user->id)->exists();
+        } else {
+            $hasOrder = false;
+        }
 
         return view('barang.t_etalase', compact('barang', 'hasOrder'));
     }
