@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Barang;
+use App\Models\DetailTransaksi;
 use App\Models\Layanan;
 use App\Models\Transaksi;
 use App\Models\User;
+use App\Models\JenisBarang;
+use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
 
@@ -16,8 +20,23 @@ class HomeController extends Controller
     {
         $user = auth()->user();
 
-        $barangs = Barang::all();
+        $barangs = Barang::with('jenisBarang')->get();
         $layanans = Layanan::all();
+        $categories = DB::table('jenis_barang as jb')
+            ->select(
+                'jb.id',
+                'jb.jenis',
+                'jb.slug',
+                DB::raw('(SELECT foto FROM barang WHERE id_jenis_barang = jb.id LIMIT 1) as foto')
+            )
+            ->groupBy('jb.id', 'jb.jenis', 'jb.slug')
+            ->get();
+
+        $topProduct = DetailTransaksi::select('barang_id', DB::raw('SUM(jumlah) as total_terjual'))
+            ->with('barang')
+            ->groupBy('barang_id')
+            ->orderByDesc('total_terjual')
+            ->first();
 
         if ($user) {
             $hasOrder = Transaksi::where('user_id', $user->id)->exists();
@@ -25,7 +44,7 @@ class HomeController extends Controller
             $hasOrder = false;
         }
 
-        return view('home.index', compact('barangs', 'layanans', 'hasOrder'));
+        return view('home.index', compact('topProduct', 'barangs', 'layanans', 'hasOrder', 'categories'));
     }
 
     public function produk()
@@ -90,8 +109,8 @@ class HomeController extends Controller
         for ($i = 11; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
             $total = Transaksi::whereYear('created_at', $month->year)
-                            ->whereMonth('created_at', $month->month)
-                            ->sum('total_harga');
+                ->whereMonth('created_at', $month->month)
+                ->sum('total_harga');
             $monthlySales[] = [
                 'label' => $month->format('M Y'),
                 'total' => $total

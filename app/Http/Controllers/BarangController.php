@@ -151,4 +151,12 @@ class BarangController extends Controller
 
         return view('barang.t_etalase', compact('barang', 'hasOrder'));
     }
+
+    public function byJenis($slug){
+        $barangs = Barang::whereHas('jenisBarang', function($query) use ($slug) {
+            $query->where('slug', $slug);
+        })->get();
+
+        return view('barang.etalase', compact('barangs'));
+    }
 }

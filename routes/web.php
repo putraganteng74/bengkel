@@ -25,6 +25,7 @@ Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
 Route::get('/etalase/{id}', [BarangController::class, 'showEtalase'])->name('etalase.detail');
 Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
 Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.detail');
+Route::get('/kontak', [HomeController::class, 'index'])->name('kontak');
 
 // Route::get('/', function () {return redirect('/etalase');})->middleware('auth');
 Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -38,6 +39,8 @@ Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('
 Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('home')->middleware('auth');
 
 // Route::get('/etalase', [BarangController::class, 'etalase'])->name('etalase');
+
+Route::get('/kategori/{slug}', [BarangController::class, 'byJenis'])->name('barang.byJenis');
 
 Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang.index');
 Route::post('/keranjang/tambah', [KeranjangController::class, 'tambah'])->name('keranjang.tambah');

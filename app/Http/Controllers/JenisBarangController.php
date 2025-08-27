@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JenisBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class JenisBarangController extends Controller
 {
@@ -27,8 +28,11 @@ class JenisBarangController extends Controller
             'jenis_barang' => 'required|string|max:255'
         ]);
 
+        $slug = Str::slug($request->jenis_barang);
+
         JenisBarang::create([
-            'jenis' => $request->jenis_barang
+            'jenis' => $request->jenis_barang,
+            'slug' => $slug
         ]);
 
         return redirect()->route('jenis-barang.index')->with('success', 'Jenis Barang berhasil ditambahkan!');
@@ -48,9 +52,12 @@ class JenisBarangController extends Controller
             'jenis' => 'required|string|max:255'
         ]);
 
+        $slug = Str::slug($request->jenis);
+
         $jenisbarang = JenisBarang::findOrFail($id);
         $jenisbarang->update([
-            'jenis' => $request->jenis
+            'jenis' => $request->jenis,
+            'slug' => $slug
         ]);
 
         return redirect()->route('jenis-barang.index')->with('success', 'Jenis Barang berhasil diperbarui!');

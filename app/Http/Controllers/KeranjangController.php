@@ -37,7 +37,7 @@ class KeranjangController extends Controller
         }
 
         $barangId = $request->input('barang_id');
-        $jumlah = $request->input('jumlah');
+        $jumlah = $request->input('jumlah') < 1 ? 1 : $request->input('jumlah');
         $action = $request->input('action');
 
         // Tambahkan ke keranjang (atau langsung beli)

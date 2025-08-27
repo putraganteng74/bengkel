@@ -13,52 +13,59 @@
         <ul class="navbar-nav">
             <!-- Menu Umum: Bisa diakses oleh semua -->
             <li class="nav-item">
-                <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}" href="{{ route('home') }}">
+                <a class="nav-link {{ Route::currentRouteName() == 'home' ? 'active' : '' }}"
+                    href="{{ route('home') }}">
                     <i class="ni ni-tv-2 text-primary"></i>
                     <span class="nav-link-text ms-2">Dashboard</span>
                 </a>
             </li>
 
             <!-- Untuk ADMIN -->
-            @if(auth()->user() && auth()->user()->role === 'admin')
+            @if (auth()->user() && auth()->user()->role === 'admin')
                 <li class="nav-item mt-3">
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Admin Menu</h6>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ Route::currentRouteName() == 'profile' ? 'active' : '' }}" href="{{ route('profile') }}">
+                    <a class="nav-link {{ Route::currentRouteName() == 'profile' ? 'active' : '' }}"
+                        href="{{ route('profile') }}">
                         <i class="ni ni-single-02 text-dark"></i>
                         <span class="nav-link-text ms-2">Profile</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('user-management*') ? 'active' : '' }}" href="{{ route('page', ['page' => 'user-management']) }}">
+                    <a class="nav-link {{ request()->is('user-management*') ? 'active' : '' }}"
+                        href="{{ route('page', ['page' => 'user-management']) }}">
                         <i class="ni ni-bullet-list-67 text-dark"></i>
                         <span class="nav-link-text ms-2">User Management</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('barang*') ? 'active' : '' }}" href="{{ route('barang.index') }}">
+                    <a class="nav-link {{ request()->is('barang*') ? 'active' : '' }}"
+                        href="{{ route('barang.index') }}">
                         <i class="ni ni-box-2 text-warning"></i>
                         <span class="nav-link-text ms-2">Barang</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('jenis-barang*') ? 'active' : '' }}" href="{{ route('jenis-barang.index') }}">
+                    <a class="nav-link {{ request()->is('jenis-barang*') ? 'active' : '' }}"
+                        href="{{ route('jenis-barang.index') }}">
                         <i class="ni ni-box-2 text-warning"></i>
                         <span class="nav-link-text ms-2">Jenis Barang</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('layanans*') ? 'active' : '' }}" href="{{ route('layanans.index') }}">
+                    <a class="nav-link {{ request()->is('layanans*') ? 'active' : '' }}"
+                        href="{{ route('layanans.index') }}">
                         <i class="ni ni-box-2 text-warning"></i>
                         <span class="nav-link-text ms-2">Layanan</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}" href="{{ route('transaksi.index') }}">
+                    <a class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}"
+                        href="{{ route('transaksi.index') }}">
                         <i class="ni ni-money-coins text-success"></i>
                         <span class="nav-link-text ms-2">Transaksi</span>
                     </a>
@@ -66,13 +73,14 @@
             @endif
 
             <!-- Untuk USER BIASA -->
-            @if(auth()->user() && auth()->user()->role === 'user')
+            @if (auth()->user() && auth()->user()->role === 'user')
                 <li class="nav-item mt-3">
                     <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">User Menu</h6>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('tiket*') ? 'active' : '' }}" href="{{ route('antrian.tiket') }}">
+                    <a class="nav-link {{ request()->is('tiket*') ? 'active' : '' }}"
+                        href="{{ route('antrian.tiket') }}">
                         <i class="ni ni-tag text-primary"></i>
                         <span class="nav-link-text ms-2">Antrian Saya</span>
                     </a>
