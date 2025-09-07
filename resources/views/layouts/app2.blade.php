@@ -134,6 +134,11 @@
             /* Keeping recognizable green */
         }
 
+        .ticket-missed {
+            border-left-color: #dc2626;
+            /* Keeping recognizable red */
+        }
+
         .btn-trigger {
             position: fixed;
             left: 20px;

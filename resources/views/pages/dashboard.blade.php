@@ -2,6 +2,57 @@
 
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Dashboard'])
+    <style>
+        .queue-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .queue-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status {
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 9999px;
+        }
+
+        .status.waiting {
+            background-color: #fbbf24;
+            color: #92400e;
+        }
+
+        .status.serving {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .status.missed {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .status.done {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .card-queue {
+            overflow: hidden;
+        }
+
+        .button-queue:disabled {
+            background-color: #a5b4fc;
+            cursor: not-allowed;
+        }
+    </style>
+
+
     <div class="container-fluid py-4">
         <div class="row">
             <!-- Rekap Harian -->
@@ -14,7 +65,8 @@
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Harian</p>
                                     <h5 class="font-weight-bolder">Rp{{ number_format($totalHarian, 0, ',', '.') }}</h5>
                                     <p class="mb-0">
-                                        <span class="{{ $persenHarian['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
+                                        <span
+                                            class="{{ $persenHarian['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
                                             {{ $persenHarian['naik'] ? '+' : '-' }}{{ $persenHarian['nilai'] }}%
                                         </span>
                                         dibanding kemarin
@@ -41,7 +93,8 @@
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Bulanan</p>
                                     <h5 class="font-weight-bolder">{{ number_format($totalBulanan) }}</h5>
                                     <p class="mb-0">
-                                        <span class="{{ $persenBulanan['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
+                                        <span
+                                            class="{{ $persenBulanan['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
                                             {{ $persenBulanan['naik'] ? '+' : '-' }}{{ $persenBulanan['nilai'] }}%
                                         </span>
                                         dibanding minggu lalu
@@ -68,7 +121,8 @@
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Pengunjung</p>
                                     <h5 class="font-weight-bolder">{{ number_format($totalPengunjung) }}</h5>
                                     <p class="mb-0">
-                                        <span class="{{ $persenPengunjung['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
+                                        <span
+                                            class="{{ $persenPengunjung['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
                                             {{ $persenPengunjung['naik'] ? '+' : '-' }}{{ $persenPengunjung['nilai'] }}%
                                         </span>
                                         dibanding kuartal lalu
@@ -95,7 +149,8 @@
                                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Akun Baru</p>
                                     <h5 class="font-weight-bolder">{{ number_format($akunBaruBulanIni) }}</h5>
                                     <p class="mb-0">
-                                        <span class="{{ $persenAkunBaru['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
+                                        <span
+                                            class="{{ $persenAkunBaru['naik'] ? 'text-success' : 'text-danger' }} text-sm font-weight-bolder">
                                             {{ $persenAkunBaru['naik'] ? '+' : '-' }}{{ $persenAkunBaru['nilai'] }}%
                                         </span>
                                         dibanding bulan lalu
@@ -118,7 +173,8 @@
                     <div class="card-header pb-0 pt-3 bg-transparent">
                         <h6 class="text-capitalize">Sales overview</h6>
                         <p class="text-sm mb-0">
-                            <i class="fa {{ $salesChange['naik'] ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger' }}"></i>
+                            <i
+                                class="fa {{ $salesChange['naik'] ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger' }}"></i>
                             <span class="font-weight-bold">
                                 {{ $salesChange['value'] }}% {{ $salesChange['naik'] ? 'lebih banyak' : 'lebih sedikit' }}
                             </span>
@@ -133,58 +189,76 @@
                 </div>
             </div>
             <div class="col-lg-5">
-                <div class="card card-carousel overflow-hidden h-100 p-0">
-                    <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel">
-                        <div class="carousel-inner border-radius-lg h-100">
-                            <div class="carousel-item h-100 active" style="background-image: url('./img/carousel-1.jpg');
-            background-size: cover;">
-                                <div class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5">
-                                    <div class="icon icon-shape icon-sm bg-white text-center border-radius-md mb-3">
-                                        <i class="ni ni-camera-compact text-dark opacity-10"></i>
-                                    </div>
-                                    <h5 class="text-white mb-1">Get started with Argon</h5>
-                                    <p>There’s nothing I really wanted to do in life that I wasn’t able to get good at.</p>
+                <div class="card h-100 card-queue">
+                    <div class="card-header pb-0 p-3 text-center">
+                        <h6 class="mb-2">Daftar Antrian</h6>
+                        <p class="text-muted small">Kelola antrian dan konfirmasi kehadiran</p>
+                    </div>
+                    <div class="queue-list">
+                        @forelse ($queues as $index => $queue)
+                            <div class="queue-item">
+                                <div class="">
+                                    <h6 class="text-sm mb-0">{{ $queue->user->firstname }}
+                                        {{ $queue->user->lastname }}
+                                        <small class="text-muted">#{{ $index + 1 }}</small>
+                                    </h6>
+                                    <p class="text-xs font-weight-bold mb-0">
+                                        {{ \Carbon\Carbon::parse($queue->waktu_datang)->format('d M Y') }}
+                                        pukul {{ \Carbon\Carbon::parse($queue->waktu_datang)->format('H:i') }}
+                                    </p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    @php
+                                        $statusMap = [
+                                            'menunggu' => ['class' => 'waiting', 'text' => 'Menunggu'],
+                                            'diproses' => ['class' => 'serving', 'text' => 'Diproses'],
+                                            'dibatalkan' => ['class' => 'missed', 'text' => 'Dibatalkan'],
+                                            'selesai' => ['class' => 'done', 'text' => 'Selesai'],
+                                        ];
+                                        $status = $statusMap[$queue->status] ?? [
+                                            'class' => '',
+                                            'text' => $queue->status,
+                                        ];
+                                    @endphp
+
+                                    <span class="status {{ $status['class'] }} text-xs">{{ $status['text'] }}</span>
+
+                                    @if ($queue->status === 'diproses')
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <form method="POST"
+                                                action="{{ route('queues.updateStatus', ['queue' => $queue->id]) }}"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="selesai">
+                                                <button type="submit" class="btn btn-success mb-0">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <form method="POST"
+                                                action="{{ route('queues.updateStatus', ['queue' => $queue->id]) }}"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="status" value="dibatalkan">
+                                                <button type="submit" class="btn btn-danger mb-0">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="carousel-item h-100" style="background-image: url('./img/carousel-2.jpg');
-            background-size: cover;">
-                                <div class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5">
-                                    <div class="icon icon-shape icon-sm bg-white text-center border-radius-md mb-3">
-                                        <i class="ni ni-bulb-61 text-dark opacity-10"></i>
-                                    </div>
-                                    <h5 class="text-white mb-1">Faster way to create web pages</h5>
-                                    <p>That’s my skill. I’m not really specifically talented at anything except for the
-                                        ability to learn.</p>
-                                </div>
-                            </div>
-                            <div class="carousel-item h-100" style="background-image: url('./img/carousel-3.jpg');
-            background-size: cover;">
-                                <div class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5">
-                                    <div class="icon icon-shape icon-sm bg-white text-center border-radius-md mb-3">
-                                        <i class="ni ni-trophy text-dark opacity-10"></i>
-                                    </div>
-                                    <h5 class="text-white mb-1">Share with us your design tips!</h5>
-                                    <p>Don’t be afraid to be wrong because you can’t learn anything from a compliment.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="carousel-control-prev w-5 me-3" type="button"
-                            data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next w-5 me-3" type="button"
-                            data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                        @empty
+                            <p class="text-muted text-center mb-0 p-3">Tidak ada antrian saat ini.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row mt-4">
+        {{-- <div class="row mt-4">
             <div class="col-lg-7 mb-lg-0 mb-4">
-                <div class="card ">
+                <div class="card">
                     <div class="card-header pb-0 p-3">
                         <div class="d-flex justify-content-between">
                             <h6 class="mb-2">Sales by Country</h6>
@@ -400,7 +474,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
         @include('layouts.footers.auth.footer')
     </div>
 @endsection

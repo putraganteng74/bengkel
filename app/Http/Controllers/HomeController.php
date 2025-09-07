@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Antrian;
 use App\Models\Barang;
 use App\Models\DetailTransaksi;
 use App\Models\Layanan;
@@ -18,10 +19,9 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
-
         $barangs = Barang::with('jenisBarang')->get();
         $layanans = Layanan::all();
+
         $categories = DB::table('jenis_barang as jb')
             ->select(
                 'jb.id',
@@ -38,19 +38,26 @@ class HomeController extends Controller
             ->orderByDesc('total_terjual')
             ->first();
 
-        if ($user) {
-            $hasOrder = Transaksi::where('user_id', $user->id)->exists();
-        } else {
-            $hasOrder = false;
-        }
-
-        return view('home.index', compact('topProduct', 'barangs', 'layanans', 'hasOrder', 'categories'));
+        return view('home.index', compact(
+            'topProduct',
+            'barangs',
+            'layanans',
+            'categories',
+        ));
     }
 
-    public function produk()
+
+    public function produk(Request $request)
     {
         $user = auth()->user();
-        $barangs = Barang::all();
+        $keyword = $request->query('q');
+
+        if ($keyword) {
+            $barangs = Barang::where('nama', 'like', "%{$keyword}%")
+                ->get();
+        } else {
+            $barangs = Barang::all();
+        }
 
         if ($user) {
             $hasOrder = Transaksi::where('user_id', $user->id)->exists();
@@ -132,6 +139,24 @@ class HomeController extends Controller
             'naik' => $change >= 0
         ];
 
+        $queues = Antrian::whereDate('waktu_datang', Carbon::today())
+            ->with('user')
+            ->orderBy('waktu_datang', 'asc')
+            ->get();
+
+        // Jika tidak ada yang 'diproses', set yang pertama 'menunggu' jadi 'diproses'
+        if (!$queues->contains('status', 'diproses')) {
+            $firstWaiting = $queues->firstWhere('status', 'menunggu');
+            if ($firstWaiting) {
+                $firstWaiting->update(['status' => 'diproses']);
+            }
+
+            // Reload data dengan filter tanggal hari ini
+            $queues = Antrian::whereDate('waktu_datang', Carbon::today())
+                ->orderBy('waktu_datang', 'asc')
+                ->get();
+        }
+
         return view('pages.dashboard', compact(
             'totalHarian',
             'totalBulanan',
@@ -142,8 +167,32 @@ class HomeController extends Controller
             'persenPengunjung',
             'persenAkunBaru',
             'monthlySales',
-            'salesChange'
+            'salesChange',
+            'queues'
         ));
+    }
+
+    public function updateStatus(Request $request, Antrian $queue)
+    {
+        $request->validate([
+            'status' => 'required|in:selesai,dibatalkan',
+        ]);
+
+        // Update status antrian sekarang
+        $queue->update(['status' => $request->status]);
+
+        // Cari dan update antrian berikutnya yang statusnya 'menunggu' dan tanggal hari ini
+        $nextQueue = Antrian::where('id', '>', $queue->id)
+            ->where('status', 'menunggu')
+            ->whereDate('waktu_datang', Carbon::today())
+            ->orderBy('id')
+            ->first();
+
+        if ($nextQueue) {
+            $nextQueue->update(['status' => 'diproses']);
+        }
+
+        return redirect()->route('home');
     }
 
     private function hitungPersen($lama, $baru)

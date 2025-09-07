@@ -19,15 +19,11 @@ class KeranjangController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // $user = auth()->user();
-
-        $hasOrder = Transaksi::where('user_id', $user->id)->exists();
-
         $items = Keranjang::with('barang') // ambil relasi barang
             ->where('user_id', $user->id)
             ->get();
 
-        return view('keranjang.index', compact('items', 'hasOrder'));
+        return view('keranjang.index', compact('items'));
     }
 
     public function tambah(Request $request)

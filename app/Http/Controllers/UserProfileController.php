@@ -9,13 +9,19 @@ class UserProfileController extends Controller
 {
     public function show()
     {
-        return view('pages.user-profile');
+        if (auth()->user()->role === 'user') {
+            return view('pages.profile');
+        } else if (auth()->user()->role === 'admin') {
+            return view('pages.user-profile');
+        } else {
+            abort(403);
+        }
     }
 
     public function update(Request $request)
     {
         $attributes = $request->validate([
-            'username' => ['required','max:255', 'min:2'],
+            'username' => ['required', 'max:255', 'min:2'],
             'firstname' => ['max:100'],
             'lastname' => ['max:100'],
             'email' => ['required', 'email', 'max:255',  Rule::unique('users')->ignore(auth()->user()->id),],
@@ -30,7 +36,7 @@ class UserProfileController extends Controller
             'username' => $request->get('username'),
             'firstname' => $request->get('firstname'),
             'lastname' => $request->get('lastname'),
-            'email' => $request->get('email') ,
+            'email' => $request->get('email'),
             'address' => $request->get('address'),
             'city' => $request->get('city'),
             'country' => $request->get('country'),

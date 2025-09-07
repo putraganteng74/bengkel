@@ -31,9 +31,6 @@
                     <a class="nav-link {{ request()->is('layanan') ? 'active' : '' }}"
                         href="{{ route('layanan') }}">Layanan</a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a class="nav-link" href="#">Tentang Kami</a>
-                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('kontak') ? 'active' : '' }}"
                         href="{{ route('kontak') }}">Kontak</a>
@@ -43,10 +40,11 @@
             <div class="d-flex align-items-center">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input class="form-control search-input" type="search" placeholder="Cari sparepart..."
-                        aria-label="Search">
+                    <input id="globalSearchInput" class="form-control search-input" type="search"
+                        placeholder="Cari sparepart..." aria-label="Search">
                 </div>
-                <button class="btn btn-search d-none d-lg-inline-block ms-2" type="button">Cari</button>
+                <button id="globalSearchButton" class="btn btn-search d-none d-lg-inline-block ms-2"
+                    type="button">Cari</button>
             </div>
 
             <ul class="navbar-nav">
@@ -66,7 +64,7 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         @auth
                             <li>
-                                <a class="dropdown-item" href="#">Akun</a>
+                                <a class="dropdown-item" href="{{ route('page', ['page' => 'profile']) }}">Akun</a>
                             </li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
@@ -88,3 +86,39 @@
         </div>
     </div>
 </nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('globalSearchButton');
+        const input = document.getElementById('globalSearchInput');
+
+        if (btn && input) {
+            const baseUrl = "{{ route('produk') }}";
+
+            // Isi input dari URL jika ada ?q=...
+            const params = new URLSearchParams(window.location.search);
+            const keyword = params.get('q');
+            if (keyword) {
+                input.value = keyword;
+            }
+
+            // Klik tombol cari
+            btn.addEventListener('click', function() {
+                const keyword = input.value.trim();
+                if (keyword) {
+                    window.location.href = baseUrl + '?q=' + encodeURIComponent(keyword);
+                } else {
+                    window.location.href = baseUrl;
+                }
+            });
+
+            // Tekan Enter juga jalankan pencarian
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btn.click();
+                }
+            });
+        }
+    });
+</script>

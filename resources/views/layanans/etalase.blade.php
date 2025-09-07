@@ -7,8 +7,8 @@
         <div class="container">
             <!-- Section Header -->
             <div class="text-center mb-5">
-                <h2 class="fw-bold text-dark mb-3">💼 Layanan Kami</h2>
-                <p class="text-muted fs-5">
+                <h2 class="h2 fw-bold text-dark mb-3">Layanan Kami</h2>
+                <p class="text-muted">
                     Pilih layanan terbaik yang kami siapkan khusus untuk kebutuhan Anda
                 </p>
             </div>

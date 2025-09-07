@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Barang;
 use App\Models\JenisBarang;
 use App\Models\Transaksi;
@@ -152,8 +153,9 @@ class BarangController extends Controller
         return view('barang.t_etalase', compact('barang', 'hasOrder'));
     }
 
-    public function byJenis($slug){
-        $barangs = Barang::whereHas('jenisBarang', function($query) use ($slug) {
+    public function byJenis($slug)
+    {
+        $barangs = Barang::whereHas('jenisBarang', function ($query) use ($slug) {
             $query->where('slug', $slug);
         })->get();
 

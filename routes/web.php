@@ -37,6 +37,7 @@ Route::post('/reset-password', [ResetPassword::class, 'send'])->middleware('gues
 Route::get('/change-password', [ChangePassword::class, 'show'])->middleware('guest')->name('change-password');
 Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
 Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('home')->middleware('auth');
+Route::patch('/queues/{queue}/status', [HomeController::class, 'updateStatus'])->name('queues.updateStatus');
 
 // Route::get('/etalase', [BarangController::class, 'etalase'])->name('etalase');
 
@@ -52,32 +53,28 @@ Route::post('/checkout', [KeranjangController::class, 'prosesCheckout'])->name('
 
 
 Route::group(['middleware' => 'auth'], function () {
-	Route::resource('barang', BarangController::class);
-	Route::resource('jenis-barang', JenisBarangController::class);
+    Route::resource('barang', BarangController::class);
+    Route::resource('jenis-barang', JenisBarangController::class);
     Route::resource('layanans', LayananController::class);
 
-    // Daftar antrian user
-    Route::get('/antrian', [AntrianController::class, 'index'])->name('antrian.index');
-
-    // Halaman untuk membuat antrian
-    Route::get('/antrian/create', [AntrianController::class, 'create'])->name('antrian.create');
+    // Antrian
     Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.store');
 
     // Lihat tiket antrian
     Route::get('/tiket-antrian', [AntrianController::class, 'tiket'])->name('antrian.tiket');
 
-	Route::resource('transaksi', TransaksiController::class);
-	Route::put('/transaksi/{id}/konfirmasi', [TransaksiController::class, 'konfirmasi'])->name('transaksi.konfirmasi');
+    Route::resource('transaksi', TransaksiController::class);
+    Route::put('/transaksi/{id}/konfirmasi', [TransaksiController::class, 'konfirmasi'])->name('transaksi.konfirmasi');
 
     Route::resource('user-management', UserController::class);
 
-	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
-	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
-	Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
-	Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update');
-	Route::get('/profile-static', [PageController::class, 'profile'])->name('profile-static');
-	Route::get('/sign-in-static', [PageController::class, 'signin'])->name('sign-in-static');
-	Route::get('/sign-up-static', [PageController::class, 'signup'])->name('sign-up-static');
-	Route::get('/{page}', [PageController::class, 'index'])->name('page');
-	Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
+    Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
+    Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
+    Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile-static', [PageController::class, 'profile'])->name('profile-static');
+    Route::get('/sign-in-static', [PageController::class, 'signin'])->name('sign-in-static');
+    Route::get('/sign-up-static', [PageController::class, 'signup'])->name('sign-up-static');
+    Route::get('/{page}', [PageController::class, 'index'])->name('page');
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });

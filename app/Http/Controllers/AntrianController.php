@@ -7,17 +7,6 @@ use App\Models\Antrian;
 
 class AntrianController extends Controller
 {
-    public function index()
-    {
-        $antrians = Antrian::with('user')->latest()->paginate(15);
-        return view('antrian.index', compact('antrians'));
-    }
-
-    public function create()
-    {
-        return view('antrian.create');
-    }
-
     public function store(Request $request)
     {
         // Validasi inputan
@@ -32,7 +21,7 @@ class AntrianController extends Controller
             'waktu_datang' => $request->waktu_datang,
         ]);
 
-        return redirect()->route('antrian.index')->with('success', 'Antrian berhasil dibuat!');
+        return redirect()->route('index')->with('success', 'Antrian berhasil dibuat!');
     }
 
     public function show($id)
@@ -54,19 +43,4 @@ class AntrianController extends Controller
     {
         //
     }
-
-    public function tiket()
-    {
-        $tiketAktif = Antrian::where('user_id', auth()->id())
-                            ->where('status', 'menunggu')
-                            ->latest()
-                            ->first();
-
-        $semuaAntrian = Antrian::where('user_id', auth()->id())
-                            ->latest()
-                            ->paginate(10);
-
-        return view('antrian.tiket', compact('tiketAktif', 'semuaAntrian'));
-    }
-
 }
