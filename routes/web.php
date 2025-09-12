@@ -36,7 +36,7 @@ Route::get('/reset-password', [ResetPassword::class, 'show'])->middleware('guest
 Route::post('/reset-password', [ResetPassword::class, 'send'])->middleware('guest')->name('reset.perform');
 Route::get('/change-password', [ChangePassword::class, 'show'])->middleware('guest')->name('change-password');
 Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
-Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('home')->middleware('auth');
+Route::get('/dashboard', [HomeController::class, 'dashboard'])->middleware('auth')->name('home');
 Route::patch('/queues/{queue}/status', [HomeController::class, 'updateStatus'])->name('queues.updateStatus');
 
 // Route::get('/etalase', [BarangController::class, 'etalase'])->name('etalase');

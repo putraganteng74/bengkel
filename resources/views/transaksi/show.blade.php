@@ -44,6 +44,12 @@
             <form action="{{ route('transaksi.konfirmasi', $transaksi->id) }}" method="POST" class="mt-3">
                 @csrf
                 @method('PUT')
+
+                <div class="mb-3">
+                    <label for="dibayar" class="form-label">Jumlah Dibayar</label>
+                    <input type="number" name="dibayar" id="dibayar" class="form-control" required placeholder="Contoh: 100000">
+                </div>
+
                 <button type="submit" class="btn btn-success">Konfirmasi Pembayaran</button>
             </form>
         @endif

@@ -38,6 +38,13 @@
     {{-- Tombol Konfirmasi --}}
     <form action="{{ route('checkout.process') }}" method="POST">
         @csrf
+
+        @if (!empty($isDirectBuy) && $isDirectBuy)
+            <input type="hidden" name="direct_buy" value="1">
+            <input type="hidden" name="barang_id" value="{{ $items->first()->barang->id }}">
+            <input type="hidden" name="jumlah" value="{{ $items->first()->jumlah }}">
+        @endif
+        
         <button type="submit" class="btn btn-success">Konfirmasi dan Bayar</button>
         <a href="{{ route('keranjang.index') }}" class="btn btn-secondary">Kembali ke Keranjang</a>
     </form>

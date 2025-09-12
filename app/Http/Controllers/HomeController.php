@@ -83,7 +83,13 @@ class HomeController extends Controller
     }
 
     public function dashboard()
-    {
+    {   
+        $user = auth()->user();
+
+        if (!$user || $user->role !== 'admin') {
+            abort(403, 'Akses ditolak.');
+        }
+
         $today = Carbon::today();
         $startOfMonth = Carbon::now()->startOfMonth();
         $now = Carbon::now();

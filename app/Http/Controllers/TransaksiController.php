@@ -29,12 +29,12 @@ class TransaksiController extends Controller
             'dibayar' => 'required|string',
         ]);
 
-        // Bersihkan nilai 'dibayar' dari titik/koma/spasi
+        // Bersihkan nilai uang dari titik/koma/spasi
         $dibayar = (float) str_replace(['.', ',', ' '], '', $request->dibayar);
 
         $transaksi = Transaksi::findOrFail($id);
 
-        // Pastikan jumlah yang dibayar tidak kurang dari total harga
+        // Validasi dibayar tidak boleh kurang dari total harga
         if ($dibayar < $transaksi->total_harga) {
             return back()->with('error', 'Jumlah yang dibayar kurang dari total harga.');
         }

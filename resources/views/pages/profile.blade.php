@@ -8,9 +8,11 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10 col-xl-12">
                     <div class="card border-0 shadow rounded-4">
-                        <div id="alert">
-                            @include('components.alert')
-                        </div>
+                        @if (session('success'))
+                            <div class="alert alert-success shadow-sm rounded-pill px-4">{{ session('success') }}</div>
+                        @elseif (session('error'))
+                            <div class="alert alert-danger shadow-sm rounded-pill px-4">{{ session('error') }}</div>
+                        @endif
                         <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                             @csrf
 
