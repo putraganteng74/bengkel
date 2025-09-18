@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
 use App\Models\Barang;
+use App\Models\Layanan;
 use Carbon\Carbon;
 
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class KeranjangController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        $items = Keranjang::with('barang') // ambil relasi barang
+        $items = Keranjang::with('item')
             ->where('user_id', $user->id)
             ->get();
 
@@ -31,44 +32,70 @@ class KeranjangController extends Controller
 
     public function tambah(Request $request)
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-        }
+        $request->validate([
+            'item_id'   => 'required|integer',
+            'item_type' => 'required|in:barang,jasa',
+            'jumlah'  => 'nullable|integer|min:1',
+        ]);
 
-        $barangId = $request->input('barang_id');
-        $jumlah = $request->input('jumlah') < 1 ? 1 : $request->input('jumlah');
-        $action = $request->input('action');
+        $jumlah = $request->item_type === 'barang'
+            ? ($request->jumlah ?? 1)
+            : 1; // jasa default 1
 
-        $existingItem = Keranjang::where('user_id', Auth::id())
-                    ->where('barang_id', $barangId)
-                    ->first();
+        Keranjang::updateOrCreate(
+            [
+                'user_id'   => auth()->id(),
+                'item_id'   => $request->item_id,
+                'item_type' => $request->item_type,
+            ],
+            [
+                'jumlah' => DB::raw("jumlah + $jumlah"),
+            ]
+        );
 
-        if ($action === 'keranjang') {
-            if ($existingItem) {
-                $existingItem->jumlah += $jumlah;
-                $existingItem->save();
-            } else {
-                Keranjang::create([
-                    'user_id' => Auth::id(),
-                    'barang_id' => $barangId,
-                    'jumlah' => $jumlah,
-                ]);
-            }
-            return redirect()->back()->with('success', 'Barang ditambahkan ke keranjang.');
-        } elseif ($action === 'beli') {
-            // Simpan ke tabel keranjang
-            // Keranjang::create([
-            //     'user_id' => Auth::id(),
-            //     'barang_id' => $barangId,
-            //     'jumlah' => $jumlah,
-            // ]);
-            return redirect()->route('checkout', ['barang_id' => $barangId, 'jumlah' => $jumlah]);
-        }
+        return back()->with('success', ucfirst($request->item_type) . ' berhasil ditambahkan ke keranjang!');
+
+        // if (!Auth::check()) {
+        //     return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        // }
+
+        // $barangId = $request->input('barang_id');
+        // $jumlah = $request->input('jumlah') < 1 ? 1 : $request->input('jumlah');
+        // $action = $request->input('action');
+
+        // $existingItem = Keranjang::where('user_id', Auth::id())
+        //     ->where('barang_id', $barangId)
+        //     ->first();
+
+        // $existingLayanan = Keranjang::where('user_id', Auth::id())
+        //     ->where('');
+
+        // if ($action === 'keranjang') {
+        //     if ($existingItem) {
+        //         $existingItem->jumlah += $jumlah;
+        //         $existingItem->save();
+        //     } else {
+        //         Keranjang::create([
+        //             'user_id' => Auth::id(),
+        //             'barang_id' => $barangId,
+        //             'jumlah' => $jumlah,
+        //         ]);
+        //     }
+        //     return redirect()->back()->with('success', 'Barang ditambahkan ke keranjang.');
+        // } elseif ($action === 'beli') {
+        //     return redirect()->route('checkout', ['barang_id' => $barangId, 'jumlah' => $jumlah]);
+        // }
     }
 
-    public function hapus($id)
+    public function hapus(Request $request, $id)
     {
-        $item = Keranjang::findOrFail($id);
+        $userId = auth()->id();
+
+        $item = Keranjang::where('id', $id)
+            ->where('user_id', $userId)
+            ->where('item_type', $request->input('item_type'))
+            ->where('item_id', $request->input('item_id'))
+            ->firstOrFail();
 
         // Pastikan hanya user pemilik keranjang yang bisa menghapus
         if ($item->user_id !== Auth::id()) {
@@ -85,36 +112,44 @@ class KeranjangController extends Controller
     {
         $user = Auth::user();
 
-        $barangId = $request->query('barang_id');
-        $jumlah = $request->query('jumlah', 1); // default 1 jika tidak diisi
+        $itemId = $request->query('item_id'); // bisa barang/jasa
+        $itemType = $request->query('item_type'); // "barang" atau "jasa"
+        $jumlah = $request->query('jumlah', 1);
 
         $hasOrder = Transaksi::where('user_id', $user->id)->exists();
 
-        // CASE 1: Beli langsung
-        if ($barangId) {
-            $barang = Barang::find($barangId);
+        // CASE 1: Beli langsung (langsung dari detail barang/jasa)
+        if ($itemId && $itemType) {
+            if ($itemType === 'barang') {
+                $itemData = Barang::find($itemId);
+            } elseif ($itemType === 'jasa') {
+                $itemData = Layanan::find($itemId);
+            } else {
+                return redirect()->back()->with('error', 'Tipe item tidak valid.');
+            }
 
-            if (!$barang) {
-                return redirect()->back()->with('error', 'Barang tidak ditemukan.');
+            if (!$itemData) {
+                return redirect()->back()->with('error', ucfirst($itemType) . ' tidak ditemukan.');
             }
 
             $item = (object)[
-                'barang' => $barang,
-                'jumlah' => $jumlah
+                'item' => $itemData,
+                'jumlah' => $jumlah,
+                'item_type' => $itemType
             ];
 
-            $total = $barang->harga * $jumlah;
+            $total = $itemData->harga * $jumlah;
 
             return view('keranjang.checkout', [
-                'items' => collect([$item]), // buat seperti koleksi keranjang
+                'items' => collect([$item]), // dibungkus biar mirip collection
                 'total' => $total,
                 'hasOrder' => $hasOrder,
-                'isDirectBuy' => true, // tambahan untuk dibedakan di view jika perlu
+                'isDirectBuy' => true,
             ]);
         }
 
         // CASE 2: Checkout dari keranjang
-        $items = Keranjang::with('barang')
+        $items = Keranjang::with('item') // pastikan relasi polymorphic barang/jasa
             ->where('user_id', $user->id)
             ->get();
 
@@ -123,8 +158,8 @@ class KeranjangController extends Controller
         }
 
         $total = $items->reduce(function ($carry, $item) {
-            if ($item->barang) {
-                return $carry + ($item->barang->harga * $item->jumlah);
+            if ($item->item) {
+                return $carry + ($item->item->harga * $item->jumlah);
             }
             return $carry;
         }, 0);
@@ -137,54 +172,60 @@ class KeranjangController extends Controller
         ]);
     }
 
+
     public function prosesCheckout(Request $request)
     {
         $user = Auth::user();
-
-        // Cek apakah ini beli langsung atau checkout dari keranjang
         $isDirectBuy = $request->input('direct_buy') == 1;
 
         if ($isDirectBuy) {
-            // Ambil data barang dan jumlah dari input
-            $barangId = $request->input('barang_id');
-            $jumlah = max(1, (int)$request->input('jumlah', 1));
+            // Ambil item_type (barang/jasa) dan id
+            $itemType = $request->input('item_type'); // "barang" atau "jasa"
+            $itemId   = $request->input('item_id');
+            $jumlah   = max(1, (int)$request->input('jumlah', 1));
 
-            $barang = Barang::find($barangId);
-
-            if (!$barang) {
-                return redirect()->back()->with('error', 'Barang tidak ditemukan.');
+            // Ambil data item sesuai tipe
+            if ($itemType === 'barang') {
+                $itemData = Barang::find($itemId);
+            } elseif ($itemType === 'jasa') {
+                $itemData = Layanan::find($itemId);
+            } else {
+                return redirect()->back()->with('error', 'Tipe item tidak valid.');
             }
 
-            if ($barang->stok < $jumlah) {
-                return redirect()->back()->with('error', "Stok untuk '{$barang->nama}' tidak mencukupi.");
+            if (!$itemData) {
+                return redirect()->back()->with('error', ucfirst($itemType) . ' tidak ditemukan.');
             }
 
-            // Transaksi dalam DB transaction agar aman
-            DB::transaction(function () use ($user, $barang, $jumlah) {
-                // Kurangi stok barang
-                $barang->stok -= $jumlah;
-                $barang->save();
+            // Validasi stok (khusus barang)
+            if ($itemType === 'barang' && $itemData->stok < $jumlah) {
+                return redirect()->back()->with('error', "Stok untuk '{$itemData->nama}' tidak mencukupi.");
+            }
 
-                // Generate nomor faktur: format YYYYMMDD0001
+            DB::transaction(function () use ($user, $itemData, $jumlah, $itemType) {
+                if ($itemType === 'barang') {
+                    $itemData->stok -= $jumlah;
+                    $itemData->save();
+                }
+
                 $tanggal = Carbon::now()->format('Ymd');
                 $jumlahHariIni = Transaksi::whereDate('created_at', Carbon::today())->count() + 1;
                 $nomorFaktur = $tanggal . str_pad($jumlahHariIni, 4, '0', STR_PAD_LEFT);
 
-                // Simpan transaksi
                 $transaksi = Transaksi::create([
                     'user_id' => $user->id,
                     'nomor_faktur' => $nomorFaktur,
-                    'total_harga' => $barang->harga * $jumlah,
+                    'total_harga' => $itemData->harga * $jumlah,
                     'status' => 'menunggu',
                 ]);
 
-                // Simpan detail transaksi
                 DetailTransaksi::create([
                     'transaksi_id' => $transaksi->id,
-                    'barang_id' => $barang->id,
+                    'item_id' => $itemData->id,
+                    'item_type' => ucfirst($itemType), // "Barang" atau "Jasa"
                     'jumlah' => $jumlah,
-                    'harga' => $barang->harga,
-                    'subtotal' => $barang->harga * $jumlah,
+                    'harga' => $itemData->harga,
+                    'subtotal' => $itemData->harga * $jumlah,
                 ]);
             });
 
@@ -192,41 +233,35 @@ class KeranjangController extends Controller
         }
 
         // CASE: Checkout dari keranjang
-        $items = Keranjang::with('barang')->where('user_id', $user->id)->get();
+        $items = Keranjang::with('item')->where('user_id', $user->id)->get();
 
         if ($items->isEmpty()) {
             return redirect()->route('keranjang.index')->with('error', 'Keranjang Anda kosong.');
         }
 
-        // Cek stok semua barang dulu
+        // Validasi stok (hanya untuk barang)
         foreach ($items as $item) {
-            $barang = $item->barang;
-            if (!$barang) {
-                return redirect()->route('keranjang.index')->with('error', "Barang di keranjang tidak ditemukan.");
-            }
-            if ($barang->stok < $item->jumlah) {
-                return redirect()->route('keranjang.index')->with('error', "Stok untuk '{$barang->nama}' tidak mencukupi.");
+            if ($item->item_type === 'barang' && $item->item->stok < $item->jumlah) {
+                return redirect()->route('keranjang.index')->with('error', "Stok untuk '{$item->item->nama}' tidak mencukupi.");
             }
         }
 
         DB::transaction(function () use ($user, $items) {
             $totalHarga = 0;
 
-            // Kurangi stok dan hitung total
             foreach ($items as $item) {
-                $barang = $item->barang;
-                $barang->stok -= $item->jumlah;
-                $barang->save();
+                if ($item->item_type === 'barang') {
+                    $item->item->stok -= $item->jumlah;
+                    $item->item->save();
+                }
 
-                $totalHarga += $barang->harga * $item->jumlah;
+                $totalHarga += $item->item->harga * $item->jumlah;
             }
 
-            // Generate nomor faktur
             $tanggal = Carbon::now()->format('Ymd');
             $jumlahHariIni = Transaksi::whereDate('created_at', Carbon::today())->count() + 1;
             $nomorFaktur = $tanggal . str_pad($jumlahHariIni, 4, '0', STR_PAD_LEFT);
 
-            // Simpan transaksi
             $transaksi = Transaksi::create([
                 'user_id' => $user->id,
                 'nomor_faktur' => $nomorFaktur,
@@ -234,22 +269,20 @@ class KeranjangController extends Controller
                 'status' => 'menunggu',
             ]);
 
-            // Simpan detail transaksi
             foreach ($items as $item) {
                 DetailTransaksi::create([
                     'transaksi_id' => $transaksi->id,
-                    'barang_id' => $item->barang_id,
+                    'item_id' => $item->item_id,
+                    'item_type' => ucfirst($item->item_type),
                     'jumlah' => $item->jumlah,
-                    'harga' => $item->barang->harga,
-                    'subtotal' => $item->barang->harga * $item->jumlah,
+                    'harga' => $item->item->harga,
+                    'subtotal' => $item->item->harga * $item->jumlah,
                 ]);
             }
 
-            // Kosongkan keranjang user
             Keranjang::where('user_id', $user->id)->delete();
         });
 
         return redirect()->route('index')->with('success', 'Checkout berhasil! Terima kasih telah berbelanja.');
     }
-
 }

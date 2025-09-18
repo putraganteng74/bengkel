@@ -36,8 +36,8 @@
 
                     <!-- Buttons -->
                     <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
-                        <a href="#layanan" class="btn text-orange btn-light btn-lg fw-semibold shadow">
-                            <i class="bi bi-wrench me-2"></i> Booking Servis
+                        <a href="/produk" class="btn text-orange btn-light btn-lg fw-semibold shadow">
+                            <i class="bi bi-bag me-2"></i> Lihat Produk
                         </a>
                         <a href="#kontak" class="btn btn-outline-light btn-lg">
                             Hubungi Kami
@@ -65,7 +65,7 @@
                 <!-- Image -->
                 <div class="col-lg-6 position-relative">
                     <div class="position-relative z-1">
-                        <img src="{{ asset('storage/' . $topProduct->barang->foto) }}" alt="{{ $topProduct->barang->nama }}"
+                        <img src="{{ asset('img/bengkel.jpg') }}" alt="Bengkel Kasnoto"
                             class="img-fluid rounded-4 shadow-lg">
                     </div>
                     <!-- Decorative Circles -->
@@ -156,76 +156,85 @@
             <div class="row g-4">
                 @foreach ($barangs as $product)
                     <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                        <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden product-card">
+                        <a href="{{ route('etalase.detail', $product->id) }}" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden product-card">
 
-                            <!-- Image -->
-                            <div class="position-relative overflow-hidden">
-                                <img src="{{ asset('storage/' . $product->foto) }}" alt="{{ $product->nama }}"
-                                    class="card-img-top img-fluid product-img" />
+                                <!-- Image -->
+                                <div class="position-relative overflow-hidden">
+                                    <img src="{{ asset('storage/' . $product->foto) }}" alt="{{ $product->nama }}"
+                                        class="card-img-top img-fluid product-img" />
 
-                                <!-- Diskon -->
-                                @if ($product->diskon > 0)
-                                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 fw-bold shadow">
-                                        -{{ $product->diskon }}%
-                                    </span>
-                                @endif
-
-                                <!-- Favorite Button -->
-                                <button type="button"
-                                    class="btn btn-light btn-sm position-absolute top-0 end-0 m-3 rounded-circle shadow-sm fav-btn">
-                                    <i class="bi bi-heart"></i>
-                                </button>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-                                <!-- Category -->
-                                <span class="badge bg-light text-secondary mb-2">
-                                    {{ $product->jenisBarang->jenis }}
-                                </span>
-
-                                <!-- Name -->
-                                <h5 class="card-title fw-semibold text-dark mb-2 text-truncate">
-                                    {{ $product->nama }}
-                                </h5>
-
-                                <!-- Rating -->
-                                <div class="mb-3 d-flex align-items-center">
-                                    @for ($i = 0; $i < 5; $i++)
-                                        <i
-                                            class="bi bi-star{{ $i < floor($product->rating) ? '-fill text-warning' : ' text-secondary' }}"></i>
-                                    @endfor
-                                    <small class="text-secondary ms-2">
-                                        {{ $product->rating }} ({{ $product->reviews }} ulasan)
-                                    </small>
-                                </div>
-
-                                <!-- Price -->
-                                <div class="mb-3">
-                                    <span class="h5 fw-bold text-dark me-2">
-                                        Rp {{ number_format($product->harga, 0, ',', '.') }}
-                                    </span>
-                                    @if ($product->originalPrice > $product->harga)
-                                        <span class="text-muted text-decoration-line-through">
-                                            Rp {{ number_format($product->originalPrice, 0, ',', '.') }}
+                                    <!-- Diskon -->
+                                    @if ($product->diskon > 0)
+                                        <span class="badge bg-danger position-absolute top-0 start-0 m-3 fw-bold shadow">
+                                            -{{ $product->diskon }}%
                                         </span>
                                     @endif
+
+                                    <!-- Favorite Button -->
+                                    {{-- <button type="button"
+                                        class="btn btn-light btn-sm position-absolute top-0 end-0 m-3 rounded-circle shadow-sm fav-btn">
+                                        <i class="bi bi-heart"></i>
+                                    </button> --}}
                                 </div>
 
-                                <!-- Button -->
-                                <a href="#" class="btn btn-orange w-100 shadow-sm">
-                                    <i class="bi bi-cart me-2"></i>
-                                    Tambah ke Keranjang
-                                </a>
+                                <!-- Content -->
+                                <div class="card-body">
+                                    <!-- Category -->
+                                    <span class="badge bg-light text-secondary mb-2">
+                                        {{ $product->jenisBarang->jenis }}
+                                    </span>
+
+                                    <!-- Name -->
+                                    <h5 class="card-title fw-semibold text-dark mb-2 text-truncate">
+                                        {{ $product->nama }}
+                                    </h5>
+
+                                    <!-- Rating -->
+                                    {{-- <div class="mb-3 d-flex align-items-center">
+                                        @for ($i = 0; $i < 5; $i++)
+                                            <i
+                                                class="bi bi-star{{ $i < floor($product->rating) ? '-fill text-warning' : ' text-secondary' }}"></i>
+                                        @endfor
+                                        <small class="text-secondary ms-2">
+                                            {{ $product->rating }} ({{ $product->reviews }} ulasan)
+                                        </small>
+                                    </div> --}}
+
+                                    <!-- Price -->
+                                    <div class="mb-3">
+                                        <span class="h5 fw-bold text-dark me-2">
+                                            Rp {{ number_format($product->harga, 0, ',', '.') }}
+                                        </span>
+                                        @if ($product->originalPrice > $product->harga)
+                                            <span class="text-muted text-decoration-line-through">
+                                                Rp {{ number_format($product->originalPrice, 0, ',', '.') }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Button -->
+                                    <form action="{{ route('keranjang.tambah') }}" method="POST" class="mt-4">
+                                        @csrf
+                                        <input type="hidden" name="item_id" value="{{ $product->id }}">
+                                        <input type="hidden" name="item_type" value="barang">
+                                        <!-- Button -->
+                                        <button type="submit" name="action" value="keranjang"
+                                            class="btn btn-orange w-100 shadow-sm">
+                                            <i class="bi bi-cart me-2"></i>
+                                            Tambah ke Keranjang
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 @endforeach
             </div>
 
             <!-- View More Button -->
             <div class="text-center mt-4">
-                <a href="#" class="btn btn-outline-orange btn-lg">
+                <a href="/produk" class="btn btn-outline-orange btn-lg">
                     Lihat Semua Produk
                 </a>
             </div>
@@ -289,10 +298,17 @@
 
                 <!-- CTA Buttons -->
                 <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
-                    <a href="#" class="btn btn-lg btn-light text-orange shadow">
-                        <i class="bi bi-gift me-2"></i>
-                        Daftar & Dapat Bonus
-                    </a>
+                    @if (auth())
+                        <a href="/produk" class="btn btn-lg btn-light text-orange shadow">
+                            <i class="bi bi-bag me-2"></i>
+                            Beli Produk
+                        </a>
+                    @else
+                        <a href="/register" class="btn btn-lg btn-light text-orange shadow">
+                            <i class="bi bi-gift me-2"></i>
+                            Daftar & Dapat Bonus
+                        </a>
+                    @endif
                     <a href="#" id="btn-hubungi"
                         class="btn btn-lg btn-outline-light text-white border border-white">
                         Hubungi Customer Service

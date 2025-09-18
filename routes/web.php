@@ -21,7 +21,7 @@ Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
 Route::get('/etalase/{id}', [BarangController::class, 'showEtalase'])->name('etalase.detail');
 Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
 Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.detail');
-Route::get('/kontak', [HomeController::class, 'index'])->name('kontak');
+Route::get('/kontak', [HomeController::class, 'kontak'])->name('kontak');
 
 Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->middleware('guest')->name('register.perform');
@@ -48,6 +48,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('jenis-barang', JenisBarangController::class);
     Route::resource('layanans', LayananController::class);
 
+    Route::get('/laporan/harian', [HomeController::class, 'laporanHarian'])->name('laporan-harian');
+    Route::get('/laporan/bulanan', [HomeController::class, 'laporanBulanan'])->name('laporan-bulanan');
+    Route::get('/laporan/customer', [HomeController::class, 'laporanCustomer'])->name('laporan-customer');
+    Route::get('/laporan/akun-baru', [HomeController::class, 'laporanAkunBaru'])->name('laporan-akunbaru');
+
     // Antrian
     Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.store');
 
@@ -62,10 +67,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
     Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
     Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
-    Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile-static', [PageController::class, 'profile'])->name('profile-static');
     Route::get('/sign-in-static', [PageController::class, 'signin'])->name('sign-in-static');
     Route::get('/sign-up-static', [PageController::class, 'signup'])->name('sign-up-static');
+    Route::get('/riwayat-pesanan', [TransaksiController::class, 'riwayat'])
+        ->middleware('auth')
+        ->name('riwayat-pesanan');
+    Route::get('/pesanan/{id_transaksi}', [TransaksiController::class, 'detail_transaksi'])
+        ->name('detail-transaksi');
     Route::get('/{page}', [PageController::class, 'index'])->name('page');
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });

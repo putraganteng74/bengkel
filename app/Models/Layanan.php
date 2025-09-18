@@ -15,4 +15,11 @@ class Layanan extends Model
         'durasi',
         'harga',
     ];
+
+    public function detailTransaksi()
+    {
+        return $this->hasMany(DetailTransaksi::class, 'item_id')
+            ->where('item_type', 'jasa');
+        // karena di DetailTransaksi ada kolom item_type (Barang/Jasa)
+    }
 }

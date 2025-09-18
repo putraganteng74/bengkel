@@ -13,7 +13,8 @@ class DetailTransaksi extends Model
 
     protected $fillable = [
         'transaksi_id',
-        'barang_id',
+        'item_id',
+        'item_type',
         'jumlah',
         'harga',
         'subtotal',
@@ -23,6 +24,11 @@ class DetailTransaksi extends Model
     public function transaksi()
     {
         return $this->belongsTo(Transaksi::class);
+    }
+
+    public function item()
+    {
+        return $this->morphTo();
     }
 
     // Relasi ke barang (banyak ke satu)

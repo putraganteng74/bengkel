@@ -40,7 +40,9 @@
                         {{-- Form Tambah ke Keranjang / Beli --}}
                         <form action="{{ route('keranjang.tambah') }}" method="POST" class="mt-4">
                             @csrf
-                            <input type="hidden" name="barang_id" value="{{ $barang->id }}">
+                            <input type="hidden" name="item_id" value="{{ $barang->id }}">
+                            <input type="hidden" name="item_type" value="barang">
+
                             <div class="d-flex align-items-center mb-3">
                                 <label for="jumlah" class="me-2 fw-semibold">Jumlah:</label>
                                 <input type="number" name="jumlah" id="jumlah" class="form-control w-auto" value="1"

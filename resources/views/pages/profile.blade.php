@@ -1,6 +1,6 @@
 @extends('layouts.app2')
 
-@section('title', 'Etalase Barang')
+@section('title', 'Profile')
 
 @section('content')
     <section class="py-5 bg-light bg-opacity-25">

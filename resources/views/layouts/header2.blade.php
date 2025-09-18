@@ -67,6 +67,11 @@
                                 <a class="dropdown-item" href="{{ route('page', ['page' => 'profile']) }}">Akun</a>
                             </li>
                             <li>
+                                <a class="dropdown-item" href="{{ route('riwayat-pesanan') }}">
+                                    Riwayat Pesanan
+                                </a>
+                            </li>
+                            <li>
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                     @csrf
                                     <button class="dropdown-item" type="submit">Keluar</button>

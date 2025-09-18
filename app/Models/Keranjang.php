@@ -11,17 +11,18 @@ class Keranjang extends Model
 
     protected $fillable = [
         'user_id',
-        'barang_id',
+        'item_id',
+        'item_type',
         'jumlah',
     ];
-
-    public function barang()
-    {
-        return $this->belongsTo(Barang::class);
-    }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function item()
+    {
+        return $this->morphTo();
     }
 }

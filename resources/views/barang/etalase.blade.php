@@ -29,10 +29,10 @@
                                 @endif
 
                                 <!-- Favorite Button -->
-                                <button type="button"
+                                {{-- <button type="button"
                                     class="btn btn-light btn-sm position-absolute top-0 end-0 m-3 rounded-circle shadow-sm fav-btn">
                                     <i class="bi bi-heart"></i>
-                                </button>
+                                </button> --}}
                             </div>
 
                             <!-- Content -->
@@ -48,7 +48,7 @@
                                 </h5>
 
                                 <!-- Rating -->
-                                <div class="mb-3 d-flex align-items-center">
+                                {{-- <div class="mb-3 d-flex align-items-center">
                                     @for ($i = 0; $i < 5; $i++)
                                         <i
                                             class="bi bi-star{{ $i < floor($product->rating) ? '-fill text-warning' : ' text-secondary' }}"></i>
@@ -56,7 +56,7 @@
                                     <small class="text-secondary ms-2">
                                         {{ $product->rating }} ({{ $product->reviews }} ulasan)
                                     </small>
-                                </div>
+                                </div> --}}
 
                                 <!-- Price -->
                                 <div class="mb-3">
@@ -72,17 +72,22 @@
 
                                 <form action="{{ route('keranjang.tambah') }}" method="POST" class="mt-4">
                                     @csrf
-                                    <input type="hidden" name="barang_id" value="{{ $product->id }}">
-                                    <!-- Button -->
-                                    <button type="submit" name="action" value="keranjang"
-                                        class="btn btn-orange w-100 shadow-sm">
-                                        <i class="bi bi-cart me-2"></i>
-                                        Tambah ke Keranjang
+                                    <input type="hidden" name="item_id" value="{{ $product->id }}">
+                                    <input type="hidden" name="item_type" value="barang">
+                                    <input type="hidden" name="jumlah" value="1">
+
+                                    <!-- Tombol -->
+                                    <button type="submit" class="btn btn-orange w-100 shadow-sm">
+                                        <i class="bi bi-cart me-2"></i> Tambah ke Keranjang
                                     </button>
+
                                     <a href="{{ route('etalase.detail', $product->id) }}"
-                                        class="btn btn-primary w-100 shadow-sm mt-2">Lihat
-                                        Detail</a>
+                                        class="btn btn-primary w-100 shadow-sm mt-2">
+                                        <i class="bi bi-info-circle me-2"></i> Lihat Detail
+                                    </a>
                                 </form>
+
+
                             </div>
                         </div>
                     </div>

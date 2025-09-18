@@ -32,20 +32,24 @@ class HomeController extends Controller
             ->groupBy('jb.id', 'jb.jenis', 'jb.slug')
             ->get();
 
-        $topProduct = DetailTransaksi::select('barang_id', DB::raw('SUM(jumlah) as total_terjual'))
-            ->with('barang')
-            ->groupBy('barang_id')
-            ->orderByDesc('total_terjual')
-            ->first();
+        // $topProduct = DetailTransaksi::select('barang_id', DB::raw('SUM(jumlah) as total_terjual'))
+        //     ->with('barang')
+        //     ->groupBy('barang_id')
+        //     ->orderByDesc('total_terjual')
+        //     ->first();
 
         return view('home.index', compact(
-            'topProduct',
+            // 'topProduct',
             'barangs',
             'layanans',
             'categories',
         ));
     }
 
+    public function kontak()
+    {
+        return view('home.kontak');
+    }
 
     public function produk(Request $request)
     {
@@ -83,7 +87,7 @@ class HomeController extends Controller
     }
 
     public function dashboard()
-    {   
+    {
         $user = auth()->user();
 
         if (!$user || $user->role !== 'admin') {
@@ -108,9 +112,6 @@ class HomeController extends Controller
 
         // Pengunjung (user yang pernah transaksi)
         $totalPengunjung = User::whereHas('transaksi')->count();
-        // Untuk demo, asumsikan bulan lalu = 3400
-        $pengunjungLalu = 3400;
-        $persenPengunjung = $this->hitungPersen($pengunjungLalu, $totalPengunjung);
 
         // Akun baru bulan ini
         $akunBaruBulanIni = User::whereBetween('created_at', [$startOfMonth, $now])->count();
@@ -150,6 +151,13 @@ class HomeController extends Controller
             ->orderBy('waktu_datang', 'asc')
             ->get();
 
+        $totalAkun = User::count();
+
+        $totalAkunBulanIni = User::whereBetween('created_at', [$startOfMonth, $now])->count();
+        $totalAkunBulanLalu = User::whereBetween('created_at', [$startLastMonth, $endLastMonth])->count();
+        $persenTotalAkun = $this->hitungPersen($totalAkunBulanLalu, $totalAkunBulanIni);
+
+
         // Jika tidak ada yang 'diproses', set yang pertama 'menunggu' jadi 'diproses'
         if (!$queues->contains('status', 'diproses')) {
             $firstWaiting = $queues->firstWhere('status', 'menunggu');
@@ -170,11 +178,12 @@ class HomeController extends Controller
             'akunBaruBulanIni',
             'persenHarian',
             'persenBulanan',
-            'persenPengunjung',
             'persenAkunBaru',
             'monthlySales',
             'salesChange',
-            'queues'
+            'queues',
+            'totalAkun',
+            'persenTotalAkun'
         ));
     }
 
@@ -200,6 +209,102 @@ class HomeController extends Controller
 
         return redirect()->route('home');
     }
+
+    public function laporanHarian()
+    {
+        $today = Carbon::today();
+
+        // Laporan Barang
+        $laporanBarang = Barang::withSum(['detailTransaksi as total_terjual' => function ($q) use ($today) {
+            $q->whereHas('transaksi', function ($trx) use ($today) {
+                $trx->whereDate('created_at', $today);
+            });
+        }], 'jumlah')
+            ->withSum(['detailTransaksi as total_pendapatan' => function ($q) use ($today) {
+                $q->whereHas('transaksi', function ($trx) use ($today) {
+                    $trx->whereDate('created_at', $today);
+                });
+            }], 'subtotal')
+            ->get();
+
+        // Laporan Jasa
+        $laporanLayanan = Layanan::withSum(['detailTransaksi as total_terjual' => function ($q) use ($today) {
+            $q->whereHas('transaksi', function ($trx) use ($today) {
+                $trx->whereDate('created_at', $today);
+            });
+        }], 'jumlah')
+            ->withSum(['detailTransaksi as total_pendapatan' => function ($q) use ($today) {
+                $q->whereHas('transaksi', function ($trx) use ($today) {
+                    $trx->whereDate('created_at', $today);
+                });
+            }], 'subtotal')
+            ->get();
+
+        return view('laporan.harian', compact('laporanBarang', 'laporanLayanan', 'today'));
+    }
+
+    public function laporanBulanan()
+    {
+        $today = Carbon::today();
+        $month = $today->month;
+        $year  = $today->year;
+
+        // Ambil data barang beserta total penjualan bulan ini
+        $laporanBarang = Barang::withSum(['detailTransaksi as total_terjual' => function ($q) use ($month, $year) {
+            $q->whereHas('transaksi', function ($trx) use ($month, $year) {
+                $trx->whereMonth('created_at', $month)
+                    ->whereYear('created_at', $year);
+            });
+        }], 'jumlah')
+            ->withSum(['detailTransaksi as total_pendapatan' => function ($q) use ($month, $year) {
+                $q->whereHas('transaksi', function ($trx) use ($month, $year) {
+                    $trx->whereMonth('created_at', $month)
+                        ->whereYear('created_at', $year);
+                });
+            }], 'subtotal')
+            ->get();
+
+        $laporanLayanan = Layanan::withSum(['detailTransaksi as total_terjual' => function ($q) use ($month, $year) {
+            $q->whereHas('transaksi', function ($trx) use ($month, $year) {
+                $trx->whereMonth('created_at', $month)
+                    ->whereYear('created_at', $year);
+            });
+        }], 'jumlah')
+            ->withSum(['detailTransaksi as total_pendapatan' => function ($q) use ($month, $year) {
+                $q->whereHas('transaksi', function ($trx) use ($month, $year) {
+                    $trx->whereMonth('created_at', $month)
+                        ->whereYear('created_at', $year);
+                });
+            }], 'subtotal')
+            ->get();
+
+        return view('laporan.bulanan', compact('laporanBarang', 'laporanLayanan', 'month', 'year'));
+    }
+
+    public function laporanCustomer()
+    {
+        $users = User::whereHas('transaksi')
+            ->withCount('transaksi')
+            ->paginate(10); // pakai pagination biar rapi
+
+        return view('laporan.customer', compact('users'));
+    }
+
+    public function laporanAkunBaru()
+    {
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth   = now()->endOfMonth();
+
+        // ambil user yang registrasi bulan ini
+        $users = User::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->paginate(10);
+
+        $totalAkunBaru = User::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
+
+        return view('laporan.akun-baru', compact('users', 'totalAkunBaru', 'startOfMonth', 'endOfMonth'));
+    }
+
+
 
     private function hitungPersen($lama, $baru)
     {

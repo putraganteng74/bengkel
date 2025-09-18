@@ -17,4 +17,10 @@ class Barang extends Model
         return $this->belongsTo(JenisBarang::class, 'id_jenis_barang', 'id');
     }
 
+    public function detailTransaksi()
+    {
+        return $this->hasMany(DetailTransaksi::class, 'item_id')
+            ->where('item_type', 'Barang');
+        // karena di DetailTransaksi ada kolom item_type (Barang/Jasa)
+    }
 }
